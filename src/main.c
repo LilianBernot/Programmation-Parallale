@@ -17,8 +17,8 @@ int main() {
     initialize_random(U, N);
     initialize_random(V, N);
 
-    double sequential_result, vectorial_result;
-    double sequential_time, vectorial_time;
+    double sequential_result, vectorial_result, vectorial_general_result;
+    double sequential_time, vectorial_time, vectorial_general_time;
     clock_t start, end;
 
     start = clock();
@@ -37,6 +37,15 @@ int main() {
     printf("--- Vectorial result: %lf\n", vectorial_result);
     printf("Vectorial execution time: %lf\n", vectorial_time);
     printf("Vectorial speed up: %lf\n", sequential_time / vectorial_time);
+
+    start = clock();
+    vectorial_general_result = vect_dist_gen(U, V, N);
+    end = clock();
+    vectorial_general_time = (double)(end - start) / CLOCKS_PER_SEC;
+
+    printf("--- Vectorial General result: %lf\n", vectorial_general_result);
+    printf("Vectorial General execution time: %lf\n", vectorial_general_time);
+    printf("Vectorial General speed up: %lf\n", sequential_time / vectorial_general_time);
 
     return 0;
 }

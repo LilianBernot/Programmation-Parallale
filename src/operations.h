@@ -5,4 +5,6 @@
 
 double dist(float *U, float *V, int n);
 
+double vect_dist(float *U, float *V, int n);
+
 #endif

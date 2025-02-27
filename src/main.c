@@ -17,9 +17,17 @@ int main() {
     initialize_random(U, N);
     initialize_random(V, N);
 
-    double result = dist(U, V, N);
+    double sequential_result;
+    double sequential_time;
+    clock_t start, end;
 
-    printf("Distance: %lf\n", result);
+    start = clock();
+    sequential_result = dist(U, V, N);
+    end = clock();
+    sequential_time = (double)(end - start) / CLOCKS_PER_SEC;
+
+    printf("Sequential result: %lf\n", sequential_result);
+    printf("Sequential execution time: %lf\n", sequential_time);
 
     return 0;
 }

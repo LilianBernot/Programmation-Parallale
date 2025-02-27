@@ -11,7 +11,7 @@ const size_t ALIGNMENT = 32;
 // Fonction pour générer un tableau de nombres flottants aléatoires entre -10 et 10
 void initialize_random(float *arr, int n) {
     for (int i = 0; i < n; i++) {
-        arr[i] = ((float)rand() / RAND_MAX) * 20.0 - 10.0;
+        arr[i] = (rand() + 1) / (float)(RAND_MAX);
     }
 }
 

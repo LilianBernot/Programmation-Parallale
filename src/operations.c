@@ -3,6 +3,8 @@
 #include <immintrin.h>  // AVX intrinsics
 #include <pthread.h>
 
+#define N_MULTIPLE 8 // N is a multiple of
+
 double dist(float *U, float *V, int n) {
     double sum = 0.0;
     for (int i = 0; i < n; i++) {
@@ -14,8 +16,8 @@ double dist(float *U, float *V, int n) {
 double vect_dist(float *U, float *V, int n) {
     __m256 sum_vec = _mm256_setzero_ps();  // Initialize vector sum
 
-    for (int i = 0; i < n; i += 8) {
-        // Load 8 floats from U and V
+    for (int i = 0; i < n; i += N_MULTIPLE) {
+        // Load N_MULTIPLE floats from U and V
         __m256 u = _mm256_load_ps(&U[i]);
         __m256 v = _mm256_load_ps(&V[i]);
 
@@ -39,10 +41,10 @@ double vect_dist(float *U, float *V, int n) {
     }
 
     // Horizontal sum of sum_vec
-    float *sum_array = (float *)aligned_alloc(32, 8 * sizeof(float));;
+    float *sum_array = (float *)aligned_alloc(32, N_MULTIPLE * sizeof(float));;
     _mm256_store_ps(sum_array, sum_vec);
     double sum;
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < N_MULTIPLE; i++) {
         sum += sum_array[i];
     }
 
@@ -52,7 +54,7 @@ double vect_dist(float *U, float *V, int n) {
 double vect_dist_gen(float *U, float *V, int n){
     __m256 sum_vec = _mm256_setzero_ps();  // Initialize vector sum
 
-    for (int i = 0; i < n; i += 8) {
+    for (int i = 0; i < n; i += N_MULTIPLE) {
         // DIFF : Use unaligned loads
         __m256 u = _mm256_loadu_ps(&U[i]);  
         __m256 v = _mm256_loadu_ps(&V[i]);  
@@ -81,7 +83,7 @@ double vect_dist_gen(float *U, float *V, int n){
     // DIFF : unaligned store
     _mm256_storeu_ps(sum_array, sum_vec);
     double sum;
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < N_MULTIPLE; i++) {
         sum += sum_array[i];
     }
 

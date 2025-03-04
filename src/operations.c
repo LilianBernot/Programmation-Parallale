@@ -52,7 +52,7 @@ double vect_dist_gen(float *U, float *V, int n){
     __m256 sum_vec = _mm256_setzero_ps();  // Initialize vector sum
 
     for (int i = 0; i < n; i += 8) {
-        // Use unaligned loads
+        // DIFF : Use unaligned loads
         __m256 u = _mm256_loadu_ps(&U[i]);  
         __m256 v = _mm256_loadu_ps(&V[i]);  
 
@@ -77,6 +77,7 @@ double vect_dist_gen(float *U, float *V, int n){
 
     // Horizontal sum of sum_vec
     float sum_array[8];
+    // DIFF : unaligned store
     _mm256_storeu_ps(sum_array, sum_vec);
     double sum;
     for (int i = 0; i < 8; i++) {

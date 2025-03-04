@@ -3,6 +3,8 @@
 
 #include <math.h>
 
+extern double multithread_sum;
+
 double dist(float *U, float *V, int n);
 
 double vect_dist(float *U, float *V, int n);

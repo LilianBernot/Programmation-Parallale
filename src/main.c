@@ -26,7 +26,7 @@ int main() {
     initialize_random(U, N);
     initialize_random(V, N);
 
-    double sequential_result, vectorial_result, vectorial_general_result, multithread_scalar_result, multithread_vectorial_result;
+    double sequential_result, vectorial_result, vectorial_general_result;
     double sequential_time, vectorial_time, vectorial_general_time, multithread_scalar_time, multithread_vectorial_time;
     clock_t start, end;
 
@@ -67,20 +67,20 @@ int main() {
     // ---------------------------- Multithread Scalar ----------------------------
 
     start = clock();
-    multithread_scalar_result = distPar(U, V, N, NB_THREADS, 0);
+    distPar(U, V, N, NB_THREADS, 0);
     end = clock();
     multithread_scalar_time = (double)(end - start) / CLOCKS_PER_SEC;
 
-    print_result("Multithread Scalar", sequential_result, multithread_scalar_result, sequential_time, multithread_scalar_time);
+    print_result("Multithread Scalar", sequential_result, multithread_sum, sequential_time, multithread_scalar_time);
 
     // ---------------------------- Multithread Vectorial ----------------------------
 
     start = clock();
-    multithread_vectorial_result = distPar(U, V, N, NB_THREADS, 1);
+    distPar(U, V, N, NB_THREADS, 1);
     end = clock();
     multithread_vectorial_time = (double)(end - start) / CLOCKS_PER_SEC;
 
-    print_result("Multithread Vectorial", sequential_result, multithread_vectorial_result, sequential_time, multithread_vectorial_time);
+    print_result("Multithread Vectorial", sequential_result, multithread_sum, sequential_time, multithread_vectorial_time);
 
     free(U);
     free(V);

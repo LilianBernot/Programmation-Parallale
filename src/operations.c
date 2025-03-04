@@ -90,12 +90,16 @@ double vect_dist_gen(float *U, float *V, int n){
     return sum;
 };
 
+// ---------------------------- Multthread implementaion ----------------------------
+
+pthread_mutex_t mutex;  // Declare a mutex
+double multithread_sum = 0; // Shared variable
+
 typedef struct {
     float *U;
     float *V;
     int start;
     int end;
-    double partial_sum;
 } ThreadData;
 
 void *thread_dist(void *arg) {
@@ -108,7 +112,13 @@ void *thread_dist(void *arg) {
     // We wil read the vector until that point
     int end_vec = data->end - data->start;
     
-    data->partial_sum = dist(U, V, end_vec);
+    double partial_sum = dist(U, V, end_vec);
+
+    // Protect shared resource
+    pthread_mutex_lock(&mutex);
+    multithread_sum += partial_sum;
+    pthread_mutex_unlock(&mutex);
+
     pthread_exit(NULL);
 }
 
@@ -122,21 +132,29 @@ void *thread_dist_vect(void *arg) {
     // We wil read the vector until that point
     int end_vec = data->end - data->start;
     
-    data->partial_sum = vect_dist(U, V, end_vec);
+    double partial_sum = vect_dist(U, V, end_vec);
+
+    // Protect shared resource
+    pthread_mutex_lock(&mutex);
+    multithread_sum += partial_sum;
+    pthread_mutex_unlock(&mutex);
+
     pthread_exit(NULL);
 }
 
-double distPar(float *U, float *V, int n, int nb_threads, int mode){
+void distPar(float *U, float *V, int n, int nb_threads, int mode){
     pthread_t threads[nb_threads];
     ThreadData data[nb_threads];
     int chunk_size = n / nb_threads;
+
+    multithread_sum = 0.0; // Reset shared sum
+    pthread_mutex_init(&mutex, NULL); // Initialize mutex
 
     for (int i = 0; i< nb_threads; i++){
         data[i].U = U;
         data[i].V = V;
         data[i].start = i*chunk_size;
         data[i].end = (i == nb_threads - 1) ? n : (i+1)*chunk_size;
-        data[i].partial_sum = 0;
     }
 
     if (mode==0){
@@ -151,11 +169,9 @@ double distPar(float *U, float *V, int n, int nb_threads, int mode){
     }
     
 
-    double tota_sum = 0;
     for (int i = 0; i< nb_threads; i++){
         pthread_join(threads[i], NULL);
-        tota_sum += data[i].partial_sum;
     }
 
-    return tota_sum;
+    pthread_mutex_destroy(&mutex); // Destroy mutex
 }

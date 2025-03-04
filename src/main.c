@@ -7,8 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// #define N (1024 * 1024) // Large value for benchmarking
-#define N (16 * 16)
+#define N (1024 * 1024) // Large value for benchmarking
+// #define N (16 * 16)
+#define NB_THREADS 8 // Number of threads for parallel execution
 
 int main() {
     float *U = (float *)aligned_alloc(32, N * sizeof(float));
@@ -17,9 +18,14 @@ int main() {
     initialize_random(U, N);
     initialize_random(V, N);
 
-    double sequential_result, vectorial_result, vectorial_general_result;
-    double sequential_time, vectorial_time, vectorial_general_time;
+    double sequential_result, vectorial_result, vectorial_general_result, multithread_scalar_result, multithread_vectorial_result;
+    double sequential_time, vectorial_time, vectorial_general_time, multithread_scalar_time, multithread_vectorial_time;
     clock_t start, end;
+
+    // ---------------------------- Print parameters ----------------------------
+    printf("--- Parameters ---\n");
+    printf("N: %d\n", N);
+    printf("NB_THREADS: %d\n\n", NB_THREADS);
 
     // ---------------------------- Sequential ----------------------------
 
@@ -58,5 +64,31 @@ int main() {
     printf("Execution time: %lf\n", vectorial_general_time);
     printf("Speed up: %lf\n", sequential_time / vectorial_general_time);
 
+    // ---------------------------- Multithread Scalar ----------------------------
+
+    start = clock();
+    multithread_scalar_result = distPar(U, V, N, NB_THREADS, 0);
+    end = clock();
+    multithread_scalar_time = (double)(end - start) / CLOCKS_PER_SEC;
+
+    printf("--- Multithread Scalar ---\n");
+    printf("Result: %lf\n", multithread_scalar_result);
+    printf("Result difference: %lf\n", multithread_scalar_result - sequential_result);
+    printf("Execution time: %lf\n", multithread_scalar_time);
+    printf("Speed up: %lf\n", sequential_time / multithread_scalar_time);
+    
+    // ---------------------------- Multithread Vectorial ----------------------------
+
+    start = clock();
+    multithread_vectorial_result = distPar(U, V, N, NB_THREADS, 1);
+    end = clock();
+    multithread_vectorial_time = (double)(end - start) / CLOCKS_PER_SEC;
+
+    printf("--- Multithread Vectorial ---\n");
+    printf("Result: %lf\n", multithread_vectorial_result);
+    printf("Result difference: %lf\n", multithread_vectorial_result - sequential_result);
+    printf("Execution time: %lf\n", multithread_vectorial_time);
+    printf("Speed up: %lf\n", sequential_time / multithread_vectorial_time);
+        
     return 0;
 }

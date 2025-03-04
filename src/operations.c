@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <immintrin.h>  // AVX intrinsics
+#include <pthread.h>
 
 double dist(float *U, float *V, int n) {
     double sum = 0.0;
@@ -86,3 +87,73 @@ double vect_dist_gen(float *U, float *V, int n){
 
     return sum;
 };
+
+typedef struct {
+    float *U;
+    float *V;
+    int start;
+    int end;
+    double partial_sum;
+} ThreadData;
+
+void *thread_dist(void *arg) {
+    ThreadData *data = (ThreadData *)arg;
+
+    // We add offset to the pointer
+    float *U = data->U + data->start;
+    float *V = data->V + data->start;
+
+    // We wil read the vector until that point
+    int end_vec = data->end - data->start;
+    
+    data->partial_sum = dist(U, V, end_vec);
+    pthread_exit(NULL);
+}
+
+void *thread_dist_vect(void *arg) {
+    ThreadData *data = (ThreadData *)arg;
+
+    // We add offset to the pointer
+    float *U = data->U + data->start;
+    float *V = data->V + data->start;
+
+    // We wil read the vector until that point
+    int end_vec = data->end - data->start;
+    
+    data->partial_sum = vect_dist(U, V, end_vec);
+    pthread_exit(NULL);
+}
+
+float distPar(float *U, float *V, int n, int nb_threads, int mode){
+    pthread_t threads[nb_threads];
+    ThreadData data[nb_threads];
+    int chunk_size = n / nb_threads;
+
+    for (int i = 0; i< nb_threads; i++){
+        data[i].U = U;
+        data[i].V = V;
+        data[i].start = i*chunk_size;
+        data[i].end = (i == nb_threads - 1) ? n : (i+1)*chunk_size;
+        data[i].partial_sum = 0;
+    }
+
+    if (mode==0){
+        for (int i = 0; i< nb_threads; i++){
+            pthread_create(&threads[i], NULL, thread_dist, &data[i]);
+        } 
+    } else if (mode==1)
+    {
+        for (int i = 0; i< nb_threads; i++){
+            pthread_create(&threads[i], NULL, thread_dist_vect, &data[i]);
+        } 
+    }
+    
+
+    float tota_sum = 0;
+    for (int i = 0; i< nb_threads; i++){
+        pthread_join(threads[i], NULL);
+        tota_sum += data[i].partial_sum;
+    }
+
+    return tota_sum;
+}

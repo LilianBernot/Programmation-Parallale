@@ -89,6 +89,9 @@ int main() {
     printf("Result difference: %lf\n", multithread_vectorial_result - sequential_result);
     printf("Execution time: %lf\n", multithread_vectorial_time);
     printf("Speed up: %lf\n", sequential_time / multithread_vectorial_time);
-        
+       
+    free(U);
+    free(V);
+
     return 0;
 }

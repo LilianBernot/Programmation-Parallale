@@ -126,7 +126,7 @@ void *thread_dist_vect(void *arg) {
     pthread_exit(NULL);
 }
 
-float distPar(float *U, float *V, int n, int nb_threads, int mode){
+double distPar(float *U, float *V, int n, int nb_threads, int mode){
     pthread_t threads[nb_threads];
     ThreadData data[nb_threads];
     int chunk_size = n / nb_threads;
@@ -151,7 +151,7 @@ float distPar(float *U, float *V, int n, int nb_threads, int mode){
     }
     
 
-    float tota_sum = 0;
+    double tota_sum = 0;
     for (int i = 0; i< nb_threads; i++){
         pthread_join(threads[i], NULL);
         tota_sum += data[i].partial_sum;

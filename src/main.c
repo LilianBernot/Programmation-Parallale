@@ -11,6 +11,14 @@
 // #define N (16 * 16)
 #define NB_THREADS 8 // Number of threads for parallel execution
 
+void print_result(const char *name, double sequential_result, double result, double sequential_time, double exec_time) {
+    printf("--- %s ---\n", name);
+    printf("Result: %lf\n", result);
+    printf("Result difference: %lf\n", result - sequential_result);
+    printf("Execution time: %lf\n", exec_time);
+    printf("Speed up: %lf\n\n", sequential_time / exec_time);
+}
+
 int main() {
     float *U = (float *)aligned_alloc(32, N * sizeof(float));
     float *V = (float *)aligned_alloc(32, N * sizeof(float));
@@ -36,7 +44,7 @@ int main() {
 
     printf("--- Sequential ---\n");
     printf("Result: %lf\n", sequential_result);
-    printf("Execution time: %lf\n", sequential_time);
+    printf("Execution time: %lf\n\n", sequential_time);
 
     // ---------------------------- Vectorial Aligned ----------------------------
 
@@ -45,11 +53,7 @@ int main() {
     end = clock();
     vectorial_time = (double)(end - start) / CLOCKS_PER_SEC;
 
-    printf("--- Vectorial Aligned ---\n");
-    printf("Result: %lf\n", vectorial_result);
-    printf("Result difference: %lf\n", vectorial_result - sequential_result);
-    printf("Execution time: %lf\n", vectorial_time);
-    printf("Speed up: %lf\n", sequential_time / vectorial_time);
+    print_result("Vectorial Aligned", sequential_result, vectorial_result, sequential_time, vectorial_time);
 
     // ---------------------------- Vectorial General ----------------------------
 
@@ -58,11 +62,7 @@ int main() {
     end = clock();
     vectorial_general_time = (double)(end - start) / CLOCKS_PER_SEC;
 
-    printf("--- Vectorial General ---\n");
-    printf("Result: %lf\n", vectorial_general_result);
-    printf("Result difference: %lf\n", vectorial_general_result - sequential_result);
-    printf("Execution time: %lf\n", vectorial_general_time);
-    printf("Speed up: %lf\n", sequential_time / vectorial_general_time);
+    print_result("Vectorial General", sequential_result, vectorial_general_result, sequential_time, vectorial_general_time);
 
     // ---------------------------- Multithread Scalar ----------------------------
 
@@ -71,12 +71,8 @@ int main() {
     end = clock();
     multithread_scalar_time = (double)(end - start) / CLOCKS_PER_SEC;
 
-    printf("--- Multithread Scalar ---\n");
-    printf("Result: %lf\n", multithread_scalar_result);
-    printf("Result difference: %lf\n", multithread_scalar_result - sequential_result);
-    printf("Execution time: %lf\n", multithread_scalar_time);
-    printf("Speed up: %lf\n", sequential_time / multithread_scalar_time);
-    
+    print_result("Multithread Scalar", sequential_result, multithread_scalar_result, sequential_time, multithread_scalar_time);
+
     // ---------------------------- Multithread Vectorial ----------------------------
 
     start = clock();
@@ -84,12 +80,8 @@ int main() {
     end = clock();
     multithread_vectorial_time = (double)(end - start) / CLOCKS_PER_SEC;
 
-    printf("--- Multithread Vectorial ---\n");
-    printf("Result: %lf\n", multithread_vectorial_result);
-    printf("Result difference: %lf\n", multithread_vectorial_result - sequential_result);
-    printf("Execution time: %lf\n", multithread_vectorial_time);
-    printf("Speed up: %lf\n", sequential_time / multithread_vectorial_time);
-       
+    print_result("Multithread Vectorial", sequential_result, multithread_vectorial_result, sequential_time, multithread_vectorial_time);
+
     free(U);
     free(V);
 

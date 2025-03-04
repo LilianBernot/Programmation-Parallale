@@ -14,7 +14,7 @@
 void print_result(const char *name, double sequential_result, double result, double sequential_time, double exec_time) {
     printf("--- %s ---\n", name);
     printf("Result: %lf\n", result);
-    printf("Result difference: %lf\n", result - sequential_result);
+    printf("Result difference: %lf\n", fabs(result - sequential_result));
     printf("Execution time: %lf\n", exec_time);
     printf("Speed up: %lf\n\n", sequential_time / exec_time);
 }
